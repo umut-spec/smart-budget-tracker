@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masraf Takip</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h1>Masraf Takip</h1>
+            </div>
+            <div class="user-section">
+                <button class="add-btn" onclick="openModal()">
+                    <i class="fas fa-plus"></i>
+                    İşlem Ekle
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card waiting">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-title">Bekleyen</div>
+                </div>
+                <div class="stat-number" id="waitingCount">0</div>
+            </div>
+            <div class="stat-card income">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-title">Gelir</div>
+                </div>
+                <div class="stat-number" id="incomeAmount">₺0</div>
+            </div>
+            <div class="stat-card expense">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-title">Gider</div>
+                </div>
+                <div class="stat-number" id="expenseAmount">₺0</div>
+            </div>
+            <div class="stat-card completed">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="stat-title">Bakiye</div>
+                </div>
+                <div class="stat-number" id="balanceAmount">₺0</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Transactions Section -->
+            <div class="transactions-section">
+                <div class="section-header">
+                    <h2 class="section-title">Son İşlemler</h2>
+                </div>
+                
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all">Tümü</button>
+                    <button class="filter-btn" data-filter="income">Gelir</button>
+                    <button class="filter-btn" data-filter="expense">Gider</button>
+                </div>
+
+                <div class="transactions-table">
+                    <div class="table-header">
+                        <span>ID</span>
+                        <span>Açıklama</span>
+                        <span>Kategori</span>
+                        <span>Tip</span>
+                        <span>Tutar</span>
+                        <span>İşlem</span>
+                    </div>
+                    <div id="transactionsList">
+                        <!-- Transactions will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="chart-section">
+                    <h3 class="chart-title">Kategori Dağılımı</h3>
+                    <canvas id="expenseChart"></canvas>
+                </div>
+
+                <div class="recent-section">
+                    <h3 class="chart-title">Son Aktiviteler</h3>
+                    <div id="recentActivities">
+                        <!-- Recent activities will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="transactionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Yeni İşlem</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label class="form-label">İşlem Tipi</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" name="type" value="income" id="income" checked>
+                            <label for="income">Gelir</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" name="type" value="expense" id="expense">
+                            <label for="expense">Gider</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Açıklama</label>
+                    <input type="text" class="form-input" name="description" placeholder="İşlem açıklaması" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Kategori</label>
+                    <select class="form-select" name="category" required>
+                        <option value="">Kategori seçin</option>
+                        <option value="food">Yiyecek</option>
+                        <option value="transport">Ulaşım</option>
+                        <option value="shopping">Alışveriş</option>
+                        <option value="bills">Faturalar</option>
+                        <option value="salary">Maaş</option>
+                        <option value="freelance">Serbest İş</option>
+                        <option value="investment">Yatırım</option>
+                        <option value="other">Diğer</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tutar</label>
+                    <input type="number" class="form-input" name="amount" placeholder="0.00" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tarih</label>
+                    <input type="date" class="form-input" name="date" required>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
